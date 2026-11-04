@@ -48,6 +48,31 @@ app.get('/bug', (req, res) => {
     res.send(usuario.nome)
 })
 
+app.get('/pokemon/:nome', async (req, res) => {
+    const nome = encodeURIComponent(req.params.nome.toLowerCase())
+
+    try {
+        const resposta = await fetch(`https://pokeapi.co/api/v2/pokemon/${nome}`)
+
+        if (!resposta.ok) {
+            return res.status(resposta.status).json({ erro: 'Pokémon não encontrado' })
+        }
+
+        const dados = await resposta.json()
+
+        res.json({
+            id: dados.id,
+            nome: dados.name,
+            altura: dados.height,
+            peso: dados.weight,
+            tipos: dados.types.map((item) => item.type.name),
+            imagem: dados.sprites.front_default
+        })
+    } catch (erro) {
+        res.status(502).json({ erro: 'Falha ao consultar a PokéAPI' })
+    }
+})
+
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 
 
